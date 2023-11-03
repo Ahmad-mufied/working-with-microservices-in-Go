@@ -4,6 +4,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"io"
+	"log"
 	"net/http"
 )
 
@@ -26,7 +29,9 @@ func (app *Config) Broker(w http.ResponseWriter, r *http.Request) {
 	_ = app.writeJSON(w, http.StatusOK, payload)
 }
 
-func (app *Config) HandlerSubmission(w http.ResponseWriter, r *http.Request) {
+// HandleSubmission is the main point of entry into the broker. It accepts a JSON
+// payload and performs an action based on the value of "action" in that JSON.
+func (app *Config) HandleSubmission(w http.ResponseWriter, r *http.Request) {
 	var requestPayload RequestPayload
 
 	err := app.readJSON(w, r, &requestPayload)
@@ -38,12 +43,12 @@ func (app *Config) HandlerSubmission(w http.ResponseWriter, r *http.Request) {
 	switch requestPayload.Action {
 	case "auth":
 		app.authenticate(w, requestPayload.Auth)
-
 	default:
 		app.errorJSON(w, errors.New("unknown action"))
 	}
 }
 
+// authenticate calls the authentication microservice and sends back the appropriate response
 func (app *Config) authenticate(w http.ResponseWriter, a AuthPayload) {
 	// create some json we'll send to the auth microservice
 	jsonData, _ := json.MarshalIndent(a, "", "\t")
@@ -63,20 +68,32 @@ func (app *Config) authenticate(w http.ResponseWriter, a AuthPayload) {
 	}
 	defer response.Body.Close()
 
+	// Read the response body
+	body, err := io.ReadAll(response.Body)
+	if err != nil {
+		log.Fatalf("Error reading response body: %v", err)
+	}
+
+	// Print the response as a string (assuming it's JSON)
+	log.Printf("Response Body: %s", string(body))
+
 	// make sure we get back the correct status code
 	if response.StatusCode == http.StatusUnauthorized {
 		app.errorJSON(w, errors.New("invalid credentials"))
 		return
 	} else if response.StatusCode != http.StatusAccepted {
-		app.errorJSON(w, errors.New("error calling auth service"))
+		app.errorJSON(w, errors.New(fmt.Sprintf("error calling auth service %d", response.StatusCode)))
 		return
 	}
 
-	// create a variable we'll read response. Body into
+	// Create a buffer to read from the response body
+	bodyBuffer := bytes.NewReader(body)
+
+	// create a variable we'll read response.Body into
 	var jsonFromService jsonResponse
 
 	// decode the json from the auth service
-	err = json.NewDecoder(response.Body).Decode(&jsonFromService)
+	err = json.NewDecoder(bodyBuffer).Decode(&jsonFromService)
 	if err != nil {
 		app.errorJSON(w, err)
 		return
