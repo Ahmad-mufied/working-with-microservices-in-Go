@@ -65,6 +65,7 @@ func (app *Config) logItem(w http.ResponseWriter, entry LogPayload) {
 	request, err := http.NewRequest("POST", logServiceURL, bytes.NewBuffer(jsonData))
 	if err != nil {
 		app.errorJSON(w, err)
+		log.Println(err)
 		return
 	}
 
