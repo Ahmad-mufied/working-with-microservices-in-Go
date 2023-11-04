@@ -41,3 +41,14 @@ services:
     volumes:
       - ./db-data/postgres:/home/postgresql/data
       - ./db-data/users.sql:/docker-entrypoint-initdb.d/create_tables.sql
+
+  mongo:
+    image: 'mongo:4.2.16-bionic'
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: logs
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password
+    volumes:
+      - ./db-data/mongo:/data/db
