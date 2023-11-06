@@ -4,15 +4,21 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	amqp "github.com/rabbitmq/amqp091-go"
 	"log"
 	"net/http"
+
+	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 type Consumer struct {
 	conn      *amqp.Connection
 	queueName string
 }
+
+/*
+The NewConsumer function is called with an AMQP connection object as input. It creates a new Consumer struct and calls the setup method
+to set up the connection and declare the exchange.
+*/
 
 func NewConsumer(conn *amqp.Connection) (Consumer, error) {
 	consumer := Consumer{
@@ -41,6 +47,12 @@ type Payload struct {
 	Name string `json:"name"`
 	Data string `json:"data"`
 }
+
+/*
+The Listen method is called with a slice of topics as input. It creates a new channel, declares a random queue,
+and binds the queue to the specified topics.The method then starts consuming messages from the queue and for each message,
+it unmarshals the payload JSON into a Payload struct and calls the handlePayload function in a separate goroutine.
+*/
 
 func (consumer *Consumer) Listen(topics []string) error {
 	ch, err := consumer.conn.Channel()
@@ -88,6 +100,12 @@ func (consumer *Consumer) Listen(topics []string) error {
 	return nil
 }
 
+/*
+	The handlePayload function checks the payload name and performs different actions based on the name.
+	If the name is "log" or "event", it calls the logEvent function to log the payload. If the name is "auth",
+	it performs authentication (not implemented in the code snippet). Otherwise, it also calls the logEvent function.
+*/
+
 func handlePayload(payload Payload) {
 	switch payload.Name {
 	case "log", "event":
@@ -107,6 +125,11 @@ func handlePayload(payload Payload) {
 		}
 	}
 }
+
+/*
+	The logEvent function marshals the payload into JSON, creates an HTTP POST request to a logging service,
+	sends the request, and checks the response status code.
+*/
 
 func logEvent(entry Payload) error {
 	jsonData, _ := json.MarshalIndent(entry, "", "\t")
