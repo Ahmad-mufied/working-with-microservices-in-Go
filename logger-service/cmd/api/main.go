@@ -49,8 +49,6 @@ func main() {
 		Models: data.New(client),
 	}
 
-	// Register the RPC Server
-	err = rpc.Register(new(RPCServer))
 	go app.rpcListen()
 
 	// start web server
@@ -60,27 +58,18 @@ func main() {
 		Handler: app.routes(),
 	}
 
+	// Register the RPC Server
+	err = rpc.Register(new(RPCServer))
+
 	err = srv.ListenAndServe()
 	if err != nil {
 		log.Panic(err)
 	}
 }
 
-func (app *Config) serve() {
-	srv := &http.Server{
-		Addr:    fmt.Sprintf(":%s", webPort),
-		Handler: app.routes(),
-	}
-
-	err := srv.ListenAndServe()
-	if err != nil {
-		log.Panic()
-	}
-}
-
 func (app *Config) rpcListen() {
 	log.Println("Starting RPC server on port:%", rpcPort)
-	listen, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%s: ", rpcPort))
+	listen, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%s", rpcPort))
 	if err != nil {
 		return
 	}
@@ -92,9 +81,7 @@ func (app *Config) rpcListen() {
 			continue
 		}
 		go rpc.ServeConn(rpcConn)
-
 	}
-
 }
 
 func connectToMongo() (*mongo.Client, error) {

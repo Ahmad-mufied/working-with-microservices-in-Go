@@ -248,6 +248,7 @@ func (app *Config) logItemViaRPC(w http.ResponseWriter, l LogPayload) {
 	client, err := rpc.Dial("tcp", "logger-service:5001")
 	if err != nil {
 		app.errorJSON(w, err)
+		return
 	}
 
 	rpcPayload := RPCPayload{
@@ -259,6 +260,7 @@ func (app *Config) logItemViaRPC(w http.ResponseWriter, l LogPayload) {
 	err = client.Call("RPCServer.LogInfo", rpcPayload, &result)
 	if err != nil {
 		app.errorJSON(w, err)
+		return
 	}
 
 	payload := jsonResponse{
@@ -267,5 +269,4 @@ func (app *Config) logItemViaRPC(w http.ResponseWriter, l LogPayload) {
 	}
 
 	app.writeJSON(w, http.StatusAccepted, payload)
-
 }
