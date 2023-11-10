@@ -11,14 +11,14 @@ type RPCServer struct{}
 
 type RPCPayload struct {
 	Name string
-	Date string
+	Data string
 }
 
 func (r *RPCServer) LogInfo(payload RPCPayload, resp *string) error {
 	collection := client.Database("logs").Collection("logs")
 	_, err := collection.InsertOne(context.TODO(), data.LogEntry{
 		Name:      payload.Name,
-		Data:      payload.Date,
+		Data:      payload.Data,
 		CreatedAt: time.Now(),
 	})
 	if err != nil {
