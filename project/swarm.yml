@@ -2,9 +2,7 @@ version: '3'
 
 services:
   broker-service:
-    image: ahmadryzen/broker-service:1.0.0
-    ports:
-      - "8090:80"
+    image: ahmadryzen/broker-service:1.0.1
     deploy:
         mode: replicated
         replicas: 1
@@ -26,7 +24,7 @@ services:
       DSN: "host=postgres port=5432 user=postgres password=password sslmode=disable dbname=users timezone=UTC connect_timeout=5"
 
   logger-service:
-    image: ahmadryzen/logger-service:1.0.0
+    image: ahmadryzen/logger-service:1.0.1
     deploy:
         mode: replicated
         replicas: 1
