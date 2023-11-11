@@ -1,6 +1,12 @@
 version: '3'
 
 services:
+  front-service:
+    image: ahmadryzen/front-service:1.0.0
+    deploy:
+        mode: replicated
+        replicas: 1
+
   broker-service:
     image: ahmadryzen/broker-service:1.0.1
     deploy:
