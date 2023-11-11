@@ -1,6 +1,19 @@
 version: '3'
 
 services:
+
+  caddy:
+    image: ahmadryzen/micro-caddy:1.0.0
+    deploy:
+        mode: replicated
+        replicas: 1
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+        - caddy-data:/data
+        - caddy-config:/config
+
   front-service:
     image: ahmadryzen/front-service:1.0.0
     deploy:
@@ -90,3 +103,9 @@ services:
     volumes:
       - ./db-data/postgres:/home/postgresql/data
       - ./db-data/users.sql:/docker-entrypoint-initdb.d/create_tables.sql
+
+volumes:
+    caddy-data:
+      external: true
+    caddy-config:
+
