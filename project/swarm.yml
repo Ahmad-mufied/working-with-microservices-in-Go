@@ -3,7 +3,7 @@ version: '3'
 services:
 
   caddy:
-    image: ahmadryzen/micro-caddy:1.0.0
+    image: ahmadryzen/micro-caddy:1.1.2
     deploy:
         mode: replicated
         replicas: 1
@@ -15,13 +15,15 @@ services:
         - caddy-config:/config
 
   front-service:
-    image: ahmadryzen/front-service:1.0.0
+    image: ahmadryzen/front-end:1.0.6
     deploy:
         mode: replicated
         replicas: 1
+    environment:
+      BROKER_URL: "http://backend"
 
   broker-service:
-    image: ahmadryzen/broker-service:1.0.1
+    image: ahmadryzen/broker-service:1.0.5
     deploy:
         mode: replicated
         replicas: 1
@@ -34,8 +36,6 @@ services:
 
   authentication-service:
     image: ahmadryzen/authentication-service:1.0.0
-    ports:
-      - "8081:80"
     deploy:
         mode: replicated
         replicas: 1

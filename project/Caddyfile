@@ -1,5 +1,5 @@
 {
-    email   me@mufied.cloud
+    email   gu35t00001@gmail.com
 }
 
 (static) {
@@ -21,13 +21,14 @@
 	}
 }
 
+
 localhost:80 {
 	encode zstd gzip
 	import static
 
-	reverse_proxy  http://front-end:8081
+	reverse_proxy  http://front-service:8081
 }
 
 backend:80 {
-	reverse_proxy http://broker-service:8090
+	reverse_proxy http://broker-service:8080
 }
